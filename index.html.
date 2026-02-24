@@ -1,2 +1,59 @@
-# VORTEX-AI
-VORTEX AI: The next-gen automated token analyzer and terminal for high-volatility assets
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VORTEX AI | Token Terminal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background: #050505; color: #00ff41; font-family: 'Courier New', Courier, monospace; }
+        .terminal-box { border: 1px solid #00ff41; box-shadow: 0 0 15px #00ff4133; }
+    </style>
+</head>
+<body class="p-4">
+    <div class="max-w-md mx-auto">
+        <h1 class="text-3xl font-bold mb-6 text-center">VORTEX AI</h1>
+        
+        <div class="terminal-box p-4 mb-6">
+            <input id="tokenSearch" type="text" placeholder="SEARCH TOKEN (e.g. BRONCO)..." 
+                   class="w-full bg-black border-none outline-none text-green-400 placeholder-green-900">
+            <button onclick="runVortexSearch()" class="w-full mt-4 bg-green-900 text-black font-bold py-2 hover:bg-green-400 transition">EXECUTE ANALYSIS</button>
+        </div>
+
+        <div id="output" class="terminal-box p-4 min-h-[200px] text-sm">
+            > SYSTEM READY... WAITING FOR INPUT...
+        </div>
+    </div>
+
+    <script>
+        async function runVortexSearch() {
+            const query = document.getElementById('tokenSearch').value;
+            const output = document.getElementById('output');
+            output.innerHTML = `> SCANNING VORTEX FOR: ${query}...`;
+
+            try {
+                // Fetching from DexScreener
+                const res = await fetch(`https://api.dexscreener.com/latest/dex/search?q=${query}`);
+                const data = await res.json();
+                const pair = data.pairs[0];
+
+                if (!pair) {
+                    output.innerHTML = "> ERROR: TOKEN NOT FOUND IN LIQUIDITY POOLS.";
+                    return;
+                }
+
+                output.innerHTML = `
+                    > TOKEN: ${pair.baseToken.name} (${pair.baseToken.symbol})<br>
+                    > PRICE: $${pair.priceUsd}<br>
+                    > 24H VOL: $${pair.volume.h24}<br>
+                    > LIQUIDITY: $${pair.liquidity.usd}<br><br>
+                    > AI ANALYZER: [INTEGRATING GEMINI...]
+                `;
+            } catch (err) {
+                output.innerHTML = "> SYSTEM CRITICAL ERROR: API TIMEOUT.";
+            }
+        }
+    </script>
+</body>
+</html>
+
